@@ -14,7 +14,7 @@ char *comment;
 int val;
 int i;
 char sel;
-char *token;
+//char *token;
 
 char delimiters[] = " .,;|";
 
@@ -112,38 +112,63 @@ void save_file(CFG *cfg) {
 	}
 }
 
-void get_val_cmt_(CFG *cfg) {
+void show_file_contents(CFG *cfg) {
+	int counter = 0;
+	cfg->fp = fopen(cfg->file_name, "r");
+	if(sizeof(buff) > 0) free(buff);
+	buff = (char *) malloc(sizeof(char) * MAX_LINE);
+	while(fgets(buff, MAX_LINE, cfg->fp)) {
+		printf("%d: %s", counter, buff);
+		free(buff);
+		buff = (char *) malloc(sizeof(char) * MAX_LINE);
+		++counter;
+	}
 	free(buff);
-	free(value);
-	free(comment);
+}
+
+void get_val_cmt_(CFG *cfg) {
+	char *token;
+	if(sizeof(buff) > 0)
+		free(buff);
+	if(sizeof(value) > 0)
+		free(value);
+	if(sizeof(comment) > 0)
+		free(comment);
 
 	buff = (char *) malloc(sizeof(char) * MAX_LINE);
-	value = (char *) malloc(sizeof(char) * 5);
+	value = (char *) malloc(sizeof(char) * MAX_LINE);
 	comment = (char *) malloc(sizeof(char) * MAX_LINE);
+
+	//printf("%s\r\n\r\n", cfg->all_lines[98]);
 	
 	strcpy(buff, cfg->all_lines[cfg->cur_sel]);
 	token = strtok(buff, ";");
-	value[0] = '\0';
+	//value[0] = '\0';
 	strcpy(value, token);
 	strip_tab(value, MAX_LINE);
 
 	token = strtok(NULL, ";");
-	comment[0] = '\0';
+	//comment[0] = '\0';
 	strcpy(comment, token);
 	strip_newline(comment, MAX_LINE);
+	free(buff);
 }
 
 void set_val_cmt_(CFG *cfg) {
+	int last;
 	free(cfg->all_lines[cfg->cur_sel]);
 	cfg->all_lines[cfg->cur_sel] = (char *) malloc(sizeof(char) * MAX_LINE);
 	cfg->all_lines[cfg->cur_sel][0] = '\0';
 	free(value);
 	value = (char *) malloc(sizeof(char) * MAX_LEN);
-	value[0] = '\0';
-	sprintf(value, "%d\t\t", val);
+	//value[0] = '\0';
+	sprintf(value, "%d\t\t\t", val);
 	strcat(cfg->all_lines[cfg->cur_sel], value);
+	strcat(cfg->all_lines[cfg->cur_sel], ";");
 	strcat(cfg->all_lines[cfg->cur_sel], comment);
-	strcat(cfg->all_lines[cfg->cur_sel], "\0");
+	//strcat(cfg->all_lines[cfg->cur_sel], "\0");
+	last = strlen(cfg->all_lines[cfg->cur_sel]) + 1;
+	cfg->all_lines[cfg->cur_sel][last] = '\0';
 }
 
 void start_(CFG *cfg) {
@@ -168,12 +193,13 @@ void start_(CFG *cfg) {
 
 		set_val_cmt_(cfg);
 		printf("Value edited successfully..\n");
+		getchar();
 		start_(cfg);
 	} else if(sel == 'm' || sel == 'M') {
 		cfg->cur_sel = cfg->track_map_key;
 		get_val_cmt_(cfg);
 
-		printf("Enter value for Track Map (%d default): ", cfg->track_map);
+		printf("Enter value for Track Map (%d default): ", value);
 		scanf("%d", &val);
 		cfg->track_map = val;
 
@@ -181,17 +207,69 @@ void start_(CFG *cfg) {
 
 		set_val_cmt_(cfg);
 		printf("Value edited successfully..\n");
+		getchar();
 		start_(cfg);
 	} else if(sel == 'v' || sel == 'V') {
-		printf("Enter value for Environment Map (%d default): ", cfg->env_map);
+		cfg->cur_sel = cfg->env_map_key;
+		get_val_cmt_(cfg);
+
+		printf("Enter value for Environment Map (%d default): ", value);
+		scanf("%d", &val);
+		cfg->env_map = val;
+
+		strcpy(cfg->env_map_cmt, comment);
+
+		set_val_cmt_(cfg);
+		printf("Value edited successfully..\n");
+		getchar();
+		start_(cfg);
 	} else if(sel == 'q' || sel == 'Q') {
-		printf("Enter value for Texture Quality (%d default): ", cfg->tex_qlty);
+		cfg->cur_sel = cfg->tex_qlty_key;
+		get_val_cmt_(cfg);
+
+		printf("Enter value for Texture Quality (%d default): ", value);
+		scanf("%d", &val);
+		cfg->tex_qlty = val;
+
+		strcpy(cfg->tex_qlty_cmt, comment);
+
+		set_val_cmt_(cfg);
+		printf("Value edited successfully..\n");
+		getchar();
+		start_(cfg);
 	} else if(sel == 'a' || sel == 'A') {
-		printf("Enter value for Anisotropic Filter Quality (%d default): ", cfg->an_fil_qlty);
+		cfg->cur_sel = cfg->an_fil_qlty_key;
+		get_val_cmt_(cfg);
+
+		printf("Enter value for Anisotropic Filter Quality (%d default): ", value);
+		scanf("%d", &val);
+		cfg->an_fil_qlty = val;
+
+		strcpy(cfg->an_fil_qlty_cmt, comment);
+
+		set_val_cmt_(cfg);
+		printf("Value edited successfully..\n");
+		getchar();
+		start_(cfg);
 	} else if(sel == 's' || sel == 'S') {
-		printf("Enter value for Shadow Type (%d default): ", cfg->shdw_type);
+		cfg->cur_sel = cfg->shdw_type_key;
+		get_val_cmt_(cfg);
+
+		printf("Enter value for Shadow Type (%d default): ", value);
+		scanf("%d", &val);
+		cfg->shdw_type = val;
+
+		set_val_cmt_(cfg);
+		printf("Value edited successfully..\n");
+		getchar();
+		start_(cfg);
 	} else if(sel == 'c' || sel == 'C') {
 		save_file(cfg);
+		getchar();
+		start_(cfg);
+	} else if(sel == 'f' || sel == 'F') {
+		show_file_contents(cfg);
+		getchar();
 		start_(cfg);
 	}
 }
@@ -201,7 +279,7 @@ void init_vals(CFG *cfg) {
 	cfg->tex_fil_qlty_cmt = "";
 	cfg->tex_fil_qlty = 0;
 	
-	cfg->track_map_key = 52;
+	cfg->track_map_key = 54;
 	cfg->track_map_cmt = "";
 	cfg->track_map = 0;
 
@@ -238,7 +316,6 @@ void read_file(CFG *cfg) {
 		strip_newline(cfg->cur_line, MAX_LINE);
 		if(strlen(cfg->cur_line) > 0) {
 			cfg->all_lines[cfg->tot_lines] = (char *) malloc(sizeof(char) * MAX_LINE);
-			//printf("%s", cfg->cur_line);
 			strcpy(cfg->all_lines[cfg->tot_lines], cfg->cur_line);
 			free(cfg->cur_line);
 			cfg->cur_line = (char *) malloc(sizeof(char *) * MAX_LINE);
@@ -247,7 +324,7 @@ void read_file(CFG *cfg) {
 	}
 	fclose(cfg->fp);
 	init_vals(cfg);
-}
+}	
 
 int main(int argc, char *argv[], char *env[]) {
 	CFG cfg;
@@ -284,7 +361,6 @@ int main(int argc, char *argv[], char *env[]) {
 	}
 
 	free(value);
-	free(token);
 	free(comment);	
 	free(cfg.cur_line);
 	free(cfg.all_lines);
