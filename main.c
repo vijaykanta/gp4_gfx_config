@@ -7,8 +7,8 @@
 #define MAX_LEN 50
 #define MAX_LINE 125
 #define MAX_LINES 100
+#define MAX_VAL 10
 
-char *buff;
 char *value;
 char *comment;
 int val;
@@ -113,9 +113,10 @@ void save_file(CFG *cfg) {
 }
 
 void show_file_contents(CFG *cfg) {
+	char *buff;
 	int counter = 0;
 	cfg->fp = fopen(cfg->file_name, "r");
-	if(sizeof(buff) > 0) free(buff);
+	//if(sizeof(buff) > 0) free(buff);
 	buff = (char *) malloc(sizeof(char) * MAX_LINE);
 	while(fgets(buff, MAX_LINE, cfg->fp)) {
 		printf("%d: %s", counter, buff);
@@ -128,29 +129,35 @@ void show_file_contents(CFG *cfg) {
 
 void get_val_cmt_(CFG *cfg) {
 	char *token;
-	if(sizeof(buff) > 0)
-		free(buff);
+	char *buff;
+
 	if(sizeof(value) > 0)
 		free(value);
 	if(sizeof(comment) > 0)
 		free(comment);
 
 	buff = (char *) malloc(sizeof(char) * MAX_LINE);
-	value = (char *) malloc(sizeof(char) * MAX_LINE);
+	value = (char *) malloc(sizeof(char) * MAX_VAL);
 	comment = (char *) malloc(sizeof(char) * MAX_LINE);
 
-	//printf("%s\r\n\r\n", cfg->all_lines[98]);
+	printf("%s\r\n\r\n", cfg->all_lines[cfg->cur_sel]);
 	
 	strcpy(buff, cfg->all_lines[cfg->cur_sel]);
 	token = strtok(buff, ";");
 	//value[0] = '\0';
-	strcpy(value, token);
-	strip_tab(value, MAX_LINE);
+
+	if(token != NULL) {
+		strcpy(value, token);
+		strip_tab(value, MAX_LINE);
+	}
 
 	token = strtok(NULL, ";");
 	//comment[0] = '\0';
-	strcpy(comment, token);
-	strip_newline(comment, MAX_LINE);
+
+	if(token != NULL) {
+		strcpy(comment, token);
+		strip_newline(comment, MAX_LINE);
+	}
 	free(buff);
 }
 
