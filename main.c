@@ -4,11 +4,13 @@
 
 #define MAX_PATH 1000
 #define MAX_STRUCT 5000
-#define MAX_LEN 50
-#define MAX_LINE 125
+#define MAX_LEN 150
+#define MAX_LINE 255
 #define MAX_LINES 100
-#define MAX_VAL 10
+#define MAX_VAL 20
 
+char *token;
+char *buff;
 char *value;
 char *comment;
 int val;
@@ -100,7 +102,7 @@ void strip_tab(char *str, int len) {
 
 void save_file(CFG *cfg) {
 	printf("Generating new configuration file from buffer..\n");
-	cfg->fp = fopen("config.cfg", "w");
+	cfg->fp = fopen("f1graphics.cfg", "w");
 	if(!cfg->fp) {
 		printf("Couldn't write file!\n");
 	} else {
@@ -128,37 +130,31 @@ void show_file_contents(CFG *cfg) {
 }
 
 void get_val_cmt_(CFG *cfg) {
-	char *token;
-	char *buff;
-
-	if(sizeof(value) > 0)
-		free(value);
-	if(sizeof(comment) > 0)
-		free(comment);
+	if(sizeof(buff) > 0) free(buff);
+	if(sizeof(value) > 0) free(value);
+	if(sizeof(comment) > 0) free(comment);
 
 	buff = (char *) malloc(sizeof(char) * MAX_LINE);
 	value = (char *) malloc(sizeof(char) * MAX_VAL);
 	comment = (char *) malloc(sizeof(char) * MAX_LINE);
-
-	printf("%s\r\n\r\n", cfg->all_lines[cfg->cur_sel]);
 	
 	strcpy(buff, cfg->all_lines[cfg->cur_sel]);
 	token = strtok(buff, ";");
-	//value[0] = '\0';
 
 	if(token != NULL) {
+		//value[0] = '\0';
 		strcpy(value, token);
-		strip_tab(value, MAX_LINE);
+		strip_tab(value, MAX_VAL);
 	}
 
 	token = strtok(NULL, ";");
-	//comment[0] = '\0';
 
 	if(token != NULL) {
+		//comment[0] = '\0';
 		strcpy(comment, token);
 		strip_newline(comment, MAX_LINE);
 	}
-	free(buff);
+
 }
 
 void set_val_cmt_(CFG *cfg) {
@@ -166,14 +162,16 @@ void set_val_cmt_(CFG *cfg) {
 	free(cfg->all_lines[cfg->cur_sel]);
 	cfg->all_lines[cfg->cur_sel] = (char *) malloc(sizeof(char) * MAX_LINE);
 	cfg->all_lines[cfg->cur_sel][0] = '\0';
+
 	free(value);
-	value = (char *) malloc(sizeof(char) * MAX_LEN);
+	value = (char *) malloc(sizeof(char) * MAX_VAL);
 	//value[0] = '\0';
+
 	sprintf(value, "%d\t\t\t", val);
 	strcat(cfg->all_lines[cfg->cur_sel], value);
 	strcat(cfg->all_lines[cfg->cur_sel], ";");
 	strcat(cfg->all_lines[cfg->cur_sel], comment);
-	//strcat(cfg->all_lines[cfg->cur_sel], "\0");
+
 	last = strlen(cfg->all_lines[cfg->cur_sel]) + 1;
 	cfg->all_lines[cfg->cur_sel][last] = '\0';
 }
@@ -206,7 +204,7 @@ void start_(CFG *cfg) {
 		cfg->cur_sel = cfg->track_map_key;
 		get_val_cmt_(cfg);
 
-		printf("Enter value for Track Map (%d default): ", value);
+		printf("Enter value for Track Map (%s default): ", value);
 		scanf("%d", &val);
 		cfg->track_map = val;
 
@@ -220,7 +218,7 @@ void start_(CFG *cfg) {
 		cfg->cur_sel = cfg->env_map_key;
 		get_val_cmt_(cfg);
 
-		printf("Enter value for Environment Map (%d default): ", value);
+		printf("Enter value for Environment Map (%s default): ", value);
 		scanf("%d", &val);
 		cfg->env_map = val;
 
@@ -234,7 +232,7 @@ void start_(CFG *cfg) {
 		cfg->cur_sel = cfg->tex_qlty_key;
 		get_val_cmt_(cfg);
 
-		printf("Enter value for Texture Quality (%d default): ", value);
+		printf("Enter value for Texture Quality (%s default): ", value);
 		scanf("%d", &val);
 		cfg->tex_qlty = val;
 
@@ -248,7 +246,7 @@ void start_(CFG *cfg) {
 		cfg->cur_sel = cfg->an_fil_qlty_key;
 		get_val_cmt_(cfg);
 
-		printf("Enter value for Anisotropic Filter Quality (%d default): ", value);
+		printf("Enter value for Anisotropic Filter Quality (%s default): ", value);
 		scanf("%d", &val);
 		cfg->an_fil_qlty = val;
 
@@ -262,7 +260,7 @@ void start_(CFG *cfg) {
 		cfg->cur_sel = cfg->shdw_type_key;
 		get_val_cmt_(cfg);
 
-		printf("Enter value for Shadow Type (%d default): ", value);
+		printf("Enter value for Shadow Type (%s default): ", value);
 		scanf("%d", &val);
 		cfg->shdw_type = val;
 
@@ -283,31 +281,40 @@ void start_(CFG *cfg) {
 
 void init_vals(CFG *cfg) {
 	cfg->tex_fil_qlty_key = 98;
-	cfg->tex_fil_qlty_cmt = "";
+	cfg->tex_fil_qlty_cmt = (char *) malloc(sizeof(char) * MAX_LEN);
 	cfg->tex_fil_qlty = 0;
 	
 	cfg->track_map_key = 54;
-	cfg->track_map_cmt = "";
+	cfg->track_map_cmt = (char *) malloc(sizeof(char) * MAX_LEN);
 	cfg->track_map = 0;
 
 	cfg->env_map_key = 64;
-	cfg->env_map_cmt = "";
+	cfg->env_map_cmt = (char *) malloc(sizeof(char) * MAX_LEN);
 	cfg->env_map = 0;
 
 	cfg->tex_qlty_key = 23;
-	cfg->tex_qlty_cmt = "";
+	cfg->tex_qlty_cmt = (char *) malloc(sizeof(char) * MAX_LEN);
 	cfg->tex_qlty = 0;
 
 	cfg->an_fil_qlty_key = 100;
-	cfg->an_fil_qlty_cmt = "";
+	cfg->an_fil_qlty_cmt = (char *) malloc(sizeof(char) * MAX_LEN);
 	cfg->an_fil_qlty = 0;
 
 	cfg->shdw_type_key = 108;
-	cfg->shdw_type_cmt = "";
+	cfg->shdw_type_cmt = (char *) malloc(sizeof(char) * MAX_LEN);
 	cfg->shdw_type = 0;
 	
 	printf("Initialized values from file..\n");
 	start_(cfg);
+}
+
+void free_vals(CFG *cfg) {
+	free(cfg->tex_fil_qlty_cmt);
+	free(cfg->track_map_cmt);
+	free(cfg->env_map_cmt);
+	free(cfg->tex_qlty_cmt);
+	free(cfg->an_fil_qlty_cmt);
+	free(cfg->shdw_type_cmt);
 }
 
 void read_file(CFG *cfg) {
@@ -365,13 +372,14 @@ int main(int argc, char *argv[], char *env[]) {
 		}
 		printf("Loading from default location: %s\n", cfg.file_name);
 		read_file(&cfg);
+		free_vals(&cfg);
+		free(cfg.cur_line);
+		free(cfg.all_lines);
+		cfg.tot_lines = 0;
 	}
 
-	free(value);
-	free(comment);	
-	free(cfg.cur_line);
-	free(cfg.all_lines);
-	cfg.tot_lines = 0;
+	if(sizeof(value) > 0) free(value);
+	if(sizeof(comment) > 0) free(comment);
 	
 	return 0;
 }
