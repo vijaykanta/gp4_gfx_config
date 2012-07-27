@@ -16,4 +16,3 @@ Array Index	=>	Description
 108		=>	Shadow type (0 => Off, 1 => Static, 2 => Composite, 3 => Projected)
 122		=>	External Steering (0 => Off, 1 => On)
 127		=>	Heat Haze (0 => Off, 1 => On)
-
