@@ -9,7 +9,7 @@
 
 #define MAX_PATH 1000
 #define MAX_STRUCT 5000
-#define MAX_LEN 150
+#define MAX_LEN 200
 #define MAX_LINE 255
 #define MAX_LINES 100
 #define MAX_VAL 20
